@@ -2,8 +2,8 @@
    - name:  Creating Enviornment for Application ||  Servian techchallenge
      hosts: localhost
      roles:
-        - provison_env
+        - roles/provision_env
     - name: Configure Servian application in ec2
       hosts: dynamic_hosts
       roles:
-        - install_app
+        - roles/install_app
