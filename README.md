@@ -1,7 +1,7 @@
 Role Name
 =========
 
-Ansible playbook to create a basic VPC,Subnet,IGW and ec2 to deploy an application
+Ansible playbook to create a basic VPC,Subnet,IGW and ec2 to deploy an Servian Application 
 
 
 Requirements
