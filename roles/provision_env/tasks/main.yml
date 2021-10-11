@@ -1,20 +1,23 @@
 ---
-- name: create VPC
-  ec2_vpc_net:
-    name: "{{ vpc_name }}"
-    cidr_block: "{{ vpc_cidr }}"
-    region: "{{ region }}"
-    state: present
-    aws_access_key: "{{ aws_access_key }}"
-    aws_secret_key: "{{ aws_secret_key }}"
-  register: vpc
-  
-- name: Set VPC ID in variable
-  set_fact:
-    vpc_id: "{{ vpc.vpc.id }}"
 
-- name: associate subnet to the VPC
-  ec2_vpc_subnet:
+ - name: create VPC
+   ec2_vpc_net:
+     name: "{{ vpc_name }}"
+     cidr_block: "{{ vpc_cidr }}"
+     region: "{{ region }}"
+     state: present
+     aws_access_key: "{{ aws_access_key }}"
+     aws_secret_key: "{{ aws_secret_key }}"
+   register: vpc
+
+
+ - name: Set VPC ID in variable
+   set_fact:
+     vpc_id: "{{ vpc.vpc.id }}"
+
+
+ - name: associate subnet to the VPC
+   ec2_vpc_subnet:
     state: present
     vpc_id: "{{ vpc_id }}"
     region: "{{ region }}"
@@ -24,10 +27,10 @@
     map_public: yes
     resource_tags:
       Name: "{{ subnet_name }}"
-  register: subnet
+   register: subnet
 
-- name: create IGW
-  ec2_vpc_igw:
+ - name: create IGW
+   ec2_vpc_igw:
     vpc_id: "{{ vpc_id }}"
     region: "{{ region }}"
     aws_access_key: "{{ aws_access_key }}"
@@ -35,10 +38,11 @@
     state: "present"
     tags:
       Name: "{{ igw_name }}"
-  register: igw
+   register: igw
 
-- name: Route IGW
-  ec2_vpc_route_table:
+
+ - name: Route IGW
+   ec2_vpc_route_table:
     vpc_id: "{{ vpc_id }}"
     region: "{{ region }}"
     aws_access_key: "{{ aws_access_key }}"
@@ -51,8 +55,9 @@
     tags:
       Name: "{{ route_name }}"
 
-- name: Create Security Group
-  ec2_group:
+
+ - name: Create Security Group
+   ec2_group:
     name: Web DMZ
     description: DMZ Security Group
     vpc_id: "{{ vpc_id }}"
@@ -68,55 +73,40 @@
         ports:
         - 22
         cidr_ip: 0.0.0.0/0
-  register: security_group
+   register: security_group
 
-- name: create a new ec2 key pair, returns generated private key
-  ec2_key:
+ - name: create a new ec2 key pair, returns generated private key
+   ec2_key:
     aws_access_key: "{{ aws_access_key }}"
     aws_secret_key: "{{ aws_secret_key }}"
     name: "{{ keypair_name }}"
     region: "{{ region }}"
-  register: keypair
-  tags:
+   register: keypair
+   tags:
     - ec2_key
 
-- debug:
+ - debug:
       var: keypair
-  tags:
+   tags:
     - ec2_key
 
-- name: Copy EC2 Key Pair private key locally
-  copy: content="{{ keypair.key.private_key }}" dest={{ ec2_key_directory }}key.ppk
-  when: keypair.changed == true
-  tags:
+ - name: Copy EC2 Key Pair private key locally
+   copy: content="{{ keypair.key.private_key }}" dest={{ ec2_key_directory }}key.ppk
+   when: keypair.changed == true
+   tags:
     - ec2_key
 
-- name: Create EC2 Instance
-  ec2:
-    image: 013a129d325529d4d
+ - name: Create EC2 Instance
+   ec2:
+    image: ami-467ca739
     wait: yes
     instance_type: t2.micro
     region: "{{ region }}"
     group_id: "{{ security_group.group_id }}"
     vpc_subnet_id: "{{ subnet.subnet.id }}"
-    key_name: "{{ keypair.key.name }}"
+    key_name: "{{ keypair.key.name  }}"
     count_tag: "{{ ec2_tag }}"
     exact_count: 1
     aws_access_key: "{{ aws_access_key }}"
     aws_secret_key: "{{ aws_secret_key }}"
-  register: ec2
-
-- name : Add instance to host group
-  add_host:
-    hostname: "{{ item.public_ip }}"
-    groupname: dynamic_hosts
-  loop: "{{ ec2.instances }}"
-
-- name: Wait for SSH to come up
-  local_action:
-    module: wait_for
-    host: "{{ item.public_ip }}"
-    port: 22
-    delay: 10
-    timeout: 120
-  loop: "{{ ec2.instances }}"
+    
