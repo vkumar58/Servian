@@ -1,6 +1,6 @@
 ---
 
- - name: Add repository for Postgresql
+- name: Add repository for Postgresql
   shell: "amazon-linux-extras install postgresql10"
 - name: Install PostgreSQL
   yum: name={{ item }} update_cache=true state=latest
