@@ -1,11 +1,11 @@
 ---
-   - name:  Creating Enviornment for Application ||  Servian techchallenge
-     hosts: localhost
-     tasks:
-       - include_role:
-             name: "roles/provision_env"
-    - name: Configure Servian application in ec2
-      hosts: dynamic_hosts
-      tasks:
-       - include_role:
-             name: "roles/install_app"
+- name:  Creating Enviornment for Application ||  Servian techchallenge
+  hosts: localhost
+  tasks:
+    - include_role:
+          name: "roles/provision_env"
+- name: Configure Servian application in ec2
+  hosts: dynamic_hosts
+  tasks:
+    - include_role:
+          name: "roles/install_app"
