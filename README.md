@@ -9,6 +9,7 @@ Requirements
 
 * AWS credentials to create resources.
 * AWS Configured in console
+* Ansible and python 
 
 Role Variables
 --------------
