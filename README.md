@@ -21,6 +21,7 @@ Role Variables
 * route_name: Route Name
 * securitygroup_name: Security Group Name
 * ec2_tag: EC2 Name
+* Postgres Db password in install_app role
 
 
 Example Playbook Run
